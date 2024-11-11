@@ -1,0 +1,32 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from fitter import Fitter
+
+# Leer el archivo CSV
+df = pd.read_csv('maintenance_data.csv')
+
+# Convertir las columnas de tiempo a formato datetime con el formato M/D/A
+df['Start_Time'] = pd.to_datetime(df['Start_Time'], format='%m/%d/%Y %H:%M')
+df['End_Time'] = pd.to_datetime(df['End_Time'], format='%m/%d/%Y %H:%M')
+
+# Filtrar los datos solo para el camión AWOU5IMX y Failure_Mode 0
+df_filtered = df[(df['Failure_Mode'] == 0)]
+
+# Calcular la duración de las mantenciones en horas
+df_filtered['Duration'] = (df_filtered['End_Time'] - df_filtered['Start_Time']).dt.total_seconds() / 3600
+
+
+# Usar Fitter para ajustar las distribuciones
+f = Fitter(df_filtered['Duration'], distributions=['gamma', 'lognorm', 'norm', 'expon', 'weibull_min'])
+
+# Ajustar las distribuciones a los datos
+f.fit()
+
+# Mostrar los resultados y las distribuciones mejor ajustadas
+f.summary()
+
+# O puedes ver gráficamente el mejor ajuste
+f.plot_pdf()
+
+# Mostrar cuál es la mejor distribución encontrada
+print("La mejor distribución es:", f.get_best())

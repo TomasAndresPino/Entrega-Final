@@ -1,0 +1,126 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}  % Required for mathematical formulas
+\usepackage{amssymb}  % Required for mathematical symbols
+\usepackage{geometry}  % Required for margin settings
+\usepackage{parskip}   % Required for space between paragraphs
+\usepackage{titlesec}  % Required for title formatting
+
+\title{Modelo Capstone}
+\author{Grupo 19}
+\date{October 2024}
+
+% Customizing section and subsection formatting
+\titleformat{\section}[block]{\normalfont\Large\bfseries}{}{0em}{}{}
+\titleformat{\subsection}[block]{\normalfont\large\bfseries}{}{0em}{}{}
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+
+\begin{document}
+
+\maketitle
+
+\section{Modelo}
+
+\subsection{Conjuntos}
+\begin{itemize}
+    \item Conjunto de tipos de falla: $F = \{1, \ldots, 5\}$
+    \item Conjunto modelo camión: $V = \{1, \ldots, 12\}$
+    \item Conjunto de tiempo: $T = \{1, \ldots, t\}$
+\end{itemize}
+
+\subsection{Variables}
+\begin{itemize}
+    \item $TMNP_{f,i,t}$: Variable binaria que indica si el camión $i$ está en mantenimiento no programado de tipo $f$ en el tiempo $t$.
+    
+    \item $TMP_{i,t}$: Variable binaria que indica si el camión $i$ está en mantenimiento programado en el tiempo $t$.
+\end{itemize}
+
+
+
+\subsection{Función Objetivo}
+Minimizar los tiempos fuera de funcionamiento:
+\[
+\min \sum_{f \in F} \sum_{i \in I} \sum_{t \in T} \text{TMNP}_{f,i,t} + \text{TMP}_{i,t}
+\]
+
+\subsection{Restricciones}
+\begin{itemize}
+    \item \textbf{R1:} Solo se puede estar haciendo un tipo de mantenimiento a la vez:
+    \[
+    \sum_{f \in F} \text{TMNP}_{f,i,t} + \text{TMP}_{i,t} \leq 1, \quad \forall i \in I, \, t \in T
+    \]
+    
+    \item \textbf{R2:} No puedo cargar mientras estoy manteniendo:
+    \[
+    C_{i,t} \leq \left(1 - \sum_{f \in F} \text{TMNP}_{f,i,t}\right) M \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R3:} No puedo cargar mientras estoy manteniendo:
+    \[
+    C_{i,t} \leq \left(1 - \text{TMP}_{i,t}\right) M, \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R4:} No puedo andar si estoy manteniendo:
+    \[
+    K_{i,t} \leq \left(1 - \sum_{f \in F} \text{TMNP}_{f,i,t}\right) M, \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R5:} No puedo andar si estoy manteniendo:
+    \[
+    K_{i,t} \leq \left(1 - \text{TMP}_{i,t}\right) M, \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R6:} Cumplimiento de demanda de carga:
+    \[
+    \sum_{t}^{720} C_{i,t} \geq DC_{i}, \quad \forall i \in I
+    \]
+
+    \item \textbf{R7:} Cumplimiento de demanda de kilometros:
+    \[
+    \sum_{t}^{720} K_{i,t} \geq DK_{i}, \quad \forall i \in I
+    \]
+
+    \item \textbf{R8:} Restricción máxima de carga:
+    \[
+    C_{i,t} \leq C_{\text{max}}, \quad \forall i \in I, \, t \in T
+    \]
+    
+    \item \textbf{R9:} Restricción máxima de kilómetros:
+    \[
+    K_{i,t} \leq K_{\text{max}}, \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R10:} Definicion Km acumulado y reinicio post-mantenimiento:
+    \[
+    KA_{i,t} = (KA_{i,t-1} + K_{i,t}) \cdot (1 - [\sum_{f \in F}\text{TMNP}_{f, i, t} + \text{TMP}_{i,t}]) \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R11:} Definicion carga acumulada y reinicio post-mantenimiento
+    \[
+    CA_{i,t} = (CA_{i,t-1} + C_{i,t}) \cdot (1 - [\sum_{f \in F}\text{TMNP}_{f, i, t} + \text{TMP}_{i,t}]) \quad \forall i \in I, \, t \in T
+    \]
+
+    \item \textbf{R12:} Definición de funcion cox o kaplan-meier 
+    \[
+    h() = kaplan-meier \quad o \quad cox
+    \]
+    \item \textbf{R13:} Alteración probabilistica de TMNP
+    \[
+    Prob(\text{TMNP} = 1) = h()
+    \]
+
+    \item \textbf{R14:} Restricciones que aseguren que aseguren la duración de las mantenciones sigan cierta distribución
+
+    \item \textbf{R15:} Naturaleza de las variables
+    \[
+    \text{TMNP}_{f,i,t} \in \{0,1\} \quad \forall f \in F, i \in I, t \in T
+    \]
+    \[
+    \text{TMP}_{i,t} \in \{0,1\} \quad \forall i \in I, t \in T
+    \]
+    
+\end{itemize}
+
+\end{document}
+
