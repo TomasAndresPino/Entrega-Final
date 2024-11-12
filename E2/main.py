@@ -6,46 +6,38 @@ porcentajes = []
 if __name__ == "__main__":
     start = time.time()
 
-    # mtbf = list()
-    # fallas = list()
-    # tiempo_op = list()
-    # tiempo_rep = list()
-    Ftotales = list()
-    Fprogramadas = list()
-    Freactivas = list()
+    mtbf = list() # guarda el tiempo medio entre falla reactiva para el ciclo
+    t_fallas = list() # guarda el tiempo medio de todas las fallas (Reactiva y Programada)
+    tiempo_op = list() # almacena el tiempo de operación para el ciclo
+    tiempo_rep = list() # almacena el tiempo de reparación para el ciclo
+
+    Ftotales = list() # lista que almacena fallas totales para el ciclo
+    Fprogramadas = list() # lista que almacena fallas programadas para el ciclo
+    Freactivas = list() # lista que almacena fallas reactivas para el ciclo
+
     # tiempo_sin = list()
-    # veces_20_dias = list()
-
-
-    # simulacion = Simulacion(34560, 0.55)
-    # simulacion.inicio_politica_4()
-    # simulacion.KPIs()
-
 
     for i in range (50):
         contador += 1
         simulacion = Simulacion(8640, 0.6)
-        simulacion.inicio_politica_5()
-    # #   simulacion.inicio_politica_3()
-    #     simulacion.inicio_politica_1()
-        # if len(simulacion.tiempos) != 0:
-        #     mtbf.append(sum(simulacion.tiempos) / len(simulacion.tiempos))
-        # if len(simulacion.fallas) != 0:
-        #     fallas.append(sum(simulacion.fallas) / len(simulacion.fallas)) #tiempo promedio de falla
-        # tiempo_op.append(simulacion.camion.TOperacion)
-        # tiempo_rep.append(simulacion.camion.TReparacion)
+        simulacion.inicio_politica_umbral()
+        if len(simulacion.tiempos_entre_falla) != 0:
+            mtbf.append(sum(simulacion.tiempos_entre_falla) / len(simulacion.tiempos_entre_falla))
+        if len(simulacion.tiempos_fallas) != 0:
+            t_fallas.append(sum(simulacion.fallas) / len(simulacion.fallas))
+
+        tiempo_op.append(simulacion.camion.TOperacion)
+        tiempo_rep.append(simulacion.camion.TReparacion)
+
         fallas_totales = simulacion.camion.CFallas 
         fallas_programadas = simulacion.camion.CFallaP
         fallas_reactivas = fallas_totales - fallas_programadas
+
         Ftotales.append(fallas_totales)
         Fprogramadas.append(fallas_programadas)
         Freactivas.append(fallas_reactivas)
 
-    #     tiempo_sin.append(3000 - simulacion.camion.TOperacion - simulacion.camion.TReparacion)
-    #     veces_20_dias.append(simulacion.contador_20_dias) 
-
         print(f"Simulación n°{contador} de {simulacion.T} horas.")
-    #     ######################3#simulacion.KPIs()
     
     end = time.time()
     tiempo_usado = end - start

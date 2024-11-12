@@ -56,8 +56,8 @@ class Simulacion:
         self.contador_5_dias = 0
 
         self.umbral = umbral
-        self.fallas = list()
-        self.tiempos = list()
+        self.tiempos_fallas = list() # almacena el tiempo de las fallas (Reactivas y Programadas)
+        self.tiempos_entre_falla = list() # almacena el tiempo hasta la falla reactiva, sirve para calcular MTBF
 
         "Puestos para debuggear"
         self.TFP = list() # lista que contendrá los tiempos de falla programadas
@@ -100,7 +100,7 @@ class Simulacion:
                         self.TLast[i] = 0
                     tfalla = TMantencionP()
                     self.TFP.append(tfalla)
-                    self.fallas.append(tfalla)
+                    self.tiempos_fallas.append(tfalla)
                     self.T += tfalla
                     self.camion.TReparacion += tfalla
                     self.camion.CFallaP += 1
@@ -128,10 +128,10 @@ class Simulacion:
                     "Falla tipo 5"
                     tfalla = TFalla5()
                 
-                self.tiempos.append(self.TLast[nivel-1])
+                self.tiempos_entre_falla.append(self.TLast[nivel-1])
                 self.T += tfalla
                 self.TFR.append(tfalla)
-                self.fallas.append(tfalla)
+                self.tiempos_fallas.append(tfalla)
                 self.camion.TReparacion += tfalla
                 self.TLast[int(i)-1] = 0
                 self.camion.CFallas += 1
@@ -169,9 +169,9 @@ class Simulacion:
                 elif nivel == 5:
                     "Falla tipo 5"
                     tfalla = TFalla5()
-                self.tiempos.append(self.TLast[nivel-1])
+                self.tiempos_entre_falla.append(self.TLast[nivel-1])
                 self.T += tfalla
-                self.fallas.append(tfalla)
+                self.tiempos_fallas.append(tfalla)
                 self.camion.TReparacion += tfalla
                 self.TLast[int(i)-1] = 0
                 self.camion.CFallas += 1
@@ -208,9 +208,9 @@ class Simulacion:
                 elif nivel == 5:
                     "Falla tipo 5"
                     tfalla = TFalla5()
-                self.tiempos.append(self.TLast[nivel-1])
+                self.tiempos_entre_falla.append(self.TLast[nivel-1])
                 self.T += tfalla
-                self.fallas.append(tfalla)
+                self.tiempos_fallas.append(tfalla)
                 self.camion.TReparacion += tfalla
                 self.TLast[int(i)-1] = 0
                 self.camion.CFallas += 1
@@ -238,7 +238,7 @@ class Simulacion:
                     for i in range(5):
                         self.TLast[i] = 0
                     tfalla = TMantencionP()
-                    self.fallas.append(tfalla)
+                    self.tiempos_fallas.append(tfalla)
                     self.T += tfalla
                     self.camion.TReparacion += tfalla
                     self.camion.CFallaP += 1
