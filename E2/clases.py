@@ -5,14 +5,6 @@ import pandas as pd
 from lifelines import KaplanMeierFitter
 from consultas import Tipo_Falla, probabilidades, cantidades
 
-#Operacion_Toneladas = namedtuple('Operacion_Toneladas', ['Toneladas'])
-#Operacion_Tiempo = namedtuple('Operacion_Tiempo', ['TInicio', 'TFin'])
-#Operacion_Kms = namedtuple('Operacion_Kms', ['Kms'])
-#Falla = namedtuple('Falla', ['Tipo'])
-#Hazzard = namedtuple('Hazzard', ['Haz', 'Tiempo'])
-#Mantencion = namedtuple('Mantencion', ['Machine_ID', 'Failure_Mode', 'Duracion'])
-#Probabilidad = namedtuple('Probabilidad', ['Time', 'Survival'])
-
 class Camion:
     def __init__(self, tipo, id):
         self.tipo = tipo
@@ -55,17 +47,13 @@ class Simulacion:
         self.camion = Camion("Model_A", "AWOU5IMX")
         self.T = 0
         self.Tdia = 0
-        self.Tdia20 = 0
         self.Tdia5 = 0
         self.TLast = [0, 0, 0, 0, 0] 
-        #self.TLast2 = [0, 0, 0, 0, 0]# tiempo desde la última mantención de cada parte
         self.TFin = tfin # inicialmente con 30 días y 1 camión
 
-        "Sacar"
+        "Parámetros necesarios para CB2"
         self.contador_dias = 0 
-        self.contador_20_dias = 0
         self.contador_5_dias = 0
-        self.KM_model = None
 
         self.umbral = umbral
         self.fallas = list()
@@ -74,98 +62,6 @@ class Simulacion:
         "Puestos para debuggear"
         self.TFP = list() # lista que contendrá los tiempos de falla programadas
         self.TFR = list() # lista que contendrá los tiempos de falla reactiva
-    
-    def KM_set(self):
-        "no necesaria, borrar después"
-        # Cargar los datos desde un archivo CSV
-        df = pd.read_csv('../base_de_datos')
-        # Crear el modelo Kaplan-Meier
-        self.KM_model = KaplanMeierFitter()
-        # Ajustar el modelo Kaplan-Meier con los datos de "Edad" y "Falla"
-        self.KM_model.fit(df['Edad'], event_observed=df['Falla'])
-    
-    def inicio_politica_1(self):
-        """
-        Lo que hace esta primera política es simular el caso base de mantener cada 20 días
-        Pasa que en medio año, como nuestra política cae en hacer mantenciones reactivas más veces
-        pierde porque esta cae menos veces.
-        Ojo que esta esta programada para, cuando se hace una PM, se mantiene todo el sistema.
-        """
-        self.camion.cargar()
-        self.camion.opera()
-        while self.T < self.TFin:
-            toperacion = self.camion.TPE - self.camion.TOcio
-            self.T += self.camion.TPE
-            self.Tdia += self.camion.TPE
-            self.Tdia20 += self.camion.TPE
-            for i in range(5):
-                self.TLast[i] += self.camion.TPE
-                #self.TLast2[i] += self.camion.TPE
-            self.camion.TOperacion += toperacion
-            self.camion.cargar()
-            self.camion.opera()
-            if self.Tdia > 24:
-                # Pasó 1 día
-                self.contador_dias += 1
-                self.Tdia = self.T - 24*(self.contador_dias)
-                if self.Tdia20 > 24*20:
-                    # Pasaron 20 días
-                    # Hacer mantención programada
-                    # Se mantendrá la que lleva más tiempo sin mantener
-                    for i in range(5):
-                        self.TLast[i] = 0
-                    tfalla = TMantencionP()
-                    print("Tiempo de Falla Programada", tfalla)
-                    self.TFP.append(tfalla)
-                    self.fallas.append(tfalla)
-                    self.T += tfalla
-                    self.camion.TReparacion += tfalla
-                    self.camion.CFallaP += 1
-                    self.camion.CFallas += 1
-                    self.Tdia20 = self.T - 24*(self.contador_dias)
-                    #print(self.contador_dias)
-                    self.contador_20_dias += 1
-                    #print(self.T)
-
-            i = Tipo_Falla(self.TLast, cantidades("maintenance_data", "AWOU5IMX"))
-            if i != str(0):
-                print(f"Falla de sistema {i}")
-                "El equipo Falla"
-                nivel = Nivel_Falla()
-                if nivel == 1:
-                    "Falla tipo 1"
-                    tfalla = TFalla1()
-                    print(f"Falla tipo 1, duración {tfalla}")
-                    print("El tiempo desde la última reparación es", self.TLast[0])
-                elif nivel == 2:
-                    "Falla tipo 2"
-                    tfalla = TFalla2()
-                    print(f"Falla tipo 1, duración {tfalla}")
-                    print("El tiempo actual es", self.T)
-                    print("El tiempo desde la última reparación es", self.TLast[1])
-                elif nivel == 3:
-                    "Falla tipo 3"
-                    tfalla = TFalla3()
-                    print(f"Falla tipo 1, duración {tfalla}")
-                    print("El tiempo desde la última reparación es", self.TLast[2])
-                elif nivel == 4:
-                    "Falla tipo 4"
-                    tfalla = TFalla4()
-                    print(f"Falla tipo 1, duración {tfalla}")
-                    print("El tiempo desde la última reparación es", self.TLast[3])
-                elif nivel == 5:
-                    "Falla tipo 5"
-                    tfalla = TFalla5()
-                    print(f"Falla tipo 1, duración {tfalla}")
-                    print("El tiempo desde la última reparación es", self.TLast[4])
-                
-                self.tiempos.append(self.TLast[nivel-1])
-                self.T += tfalla
-                self.TFR.append(tfalla)
-                self.fallas.append(tfalla)
-                self.camion.TReparacion += tfalla
-                self.TLast[int(i)-1] = 0
-                self.camion.CFallas += 1
  
     def inicio_CASO_BASE_2(self):
         """
@@ -200,14 +96,9 @@ class Simulacion:
                 if self.Tdia5 > 24*5 and self.contador_5_dias < 10:
                     # Pasaron 5 días
                     # Hacer mantención programada
-                    # Se mantendrá la que lleva más tiempo sin mantener
-                    # Alfinal se mantendrá todo
-                    # indice = self.TLast.index(max(self.TLast))
-                    # self.TLast[indice] = 0
                     for i in range(5):
                         self.TLast[i] = 0
                     tfalla = TMantencionP()
-                    #print("Tiempo de Falla Programada", tfalla)
                     self.TFP.append(tfalla)
                     self.fallas.append(tfalla)
                     self.T += tfalla
@@ -215,41 +106,27 @@ class Simulacion:
                     self.camion.CFallaP += 1
                     self.camion.CFallas += 1
                     self.Tdia5 = self.T - 24*(self.contador_dias)
-                    #print(self.contador_dias)
                     self.contador_5_dias += 1
-                    #print(self.T)
 
             i = Tipo_Falla(self.TLast, cantidades("maintenance_data", "AWOU5IMX"))
             if i != str(0):
-                # print(f"Falla de sistema {i}")
                 "El equipo Falla"
                 nivel = Nivel_Falla()
                 if nivel == 1:
                     "Falla tipo 1"
                     tfalla = TFalla1()
-                    # print(f"Falla tipo 1, duración {tfalla}")
-                    # print("El tiempo desde la última reparación es", self.TLast[0])
                 elif nivel == 2:
                     "Falla tipo 2"
                     tfalla = TFalla2()
-                    # print(f"Falla tipo 1, duración {tfalla}")
-                    # print("El tiempo actual es", self.T)
-                    # print("El tiempo desde la última reparación es", self.TLast[1])
                 elif nivel == 3:
                     "Falla tipo 3"
                     tfalla = TFalla3()
-                    # print(f"Falla tipo 1, duración {tfalla}")
-                    # print("El tiempo desde la última reparación es", self.TLast[2])
                 elif nivel == 4:
                     "Falla tipo 4"
                     tfalla = TFalla4()
-                    # print(f"Falla tipo 1, duración {tfalla}")
-                    # print("El tiempo desde la última reparación es", self.TLast[3])
                 elif nivel == 5:
                     "Falla tipo 5"
                     tfalla = TFalla5()
-                    # print(f"Falla tipo 1, duración {tfalla}")
-                    # print("El tiempo desde la última reparación es", self.TLast[4])
                 
                 self.tiempos.append(self.TLast[nivel-1])
                 self.T += tfalla
@@ -299,7 +176,7 @@ class Simulacion:
                 self.TLast[int(i)-1] = 0
                 self.camion.CFallas += 1
     
-    def inicio_politica_4(self):
+    def inicio_politica_umbral(self):
         self.camion.cargar()
         self.camion.opera()
         while self.T < self.TFin:
@@ -307,127 +184,6 @@ class Simulacion:
             self.T += self.camion.TPE
             for i in range(5):
                 self.TLast[i] += self.camion.TPE
-                #self.TLast2[i] += self.camion.TPE
-            
-            self.camion.TOperacion += toperacion
-            self.camion.cargar()
-            self.camion.opera()
-
-            i = Tipo_Falla(self.TLast, cantidades("maintenance_data", "AWOU5IMX"))
-            if i != str(0):
-                #print(f"Falla de sistema {i}")
-                "El equipo Falla"
-                nivel = Nivel_Falla()
-                #print("Nivel", nivel)
-                #print(type(nivel))
-                if nivel == 1:
-                    "Falla tipo 1"
-                    tfalla = TFalla1()
-                    print(f"Falla Reactiva tipo 1, duración {tfalla}")
-                    print("----------------------")
-                elif nivel == 2:
-                    "Falla tipo 2"
-                    tfalla = TFalla2()
-                    print(f"Falla tipo 2, duración {tfalla}")
-                    print("----------------------")
-                elif nivel == 3:
-                    "Falla tipo 3"
-                    tfalla = TFalla3()
-                    print(f"Falla tipo 3, duración {tfalla}")
-                    print("----------------------")
-                elif nivel == 4:
-                    "Falla tipo 4"
-                    tfalla = TFalla4()
-                    print(f"Falla tipo 4, duración {tfalla}")
-                    print("----------------------")
-                elif nivel == 5:
-                    "Falla tipo 5"
-                    tfalla = TFalla5()
-                    print(f"Falla tipo 5, duración {tfalla}")
-                    print("----------------------")
-                
-                #self.tiempos.append(self.TLast2[nivel-1])
-                #print(self.TLast2[nivel-1])
-                #self.TLast2 = [0,0,0,0,0]
-                self.tiempos.append(self.TLast[nivel-1])
-                self.T += tfalla
-                self.fallas.append(tfalla)
-                #print(tfalla)
-                self.camion.TReparacion += tfalla
-                self.TLast[int(i)-1] = 0
-                self.camion.CFallas += 1
-            else:
-                "El equipo no falla"
-                p_list = probabilidades(self.TLast)
-                hubo_mantencion = False
-                if p_list[0] < self.umbral:
-                    "Mantencion Programada de Sistema Electrico"
-                    #self.TLast[0] = 0
-                    print("----------------------")
-                    print("Mantención Programada")
-                    print(f"La probabilidad de sobrevivir es {p_list[0]}")
-                    print(f"El tiempo actual es {self.T}")
-                    hubo_mantencion = True
-                if p_list[1] < self.umbral:
-                    "Mantencion Programada de Motor"
-                    #self.TLast[1] = 0
-                    # print("----------------------")
-                    print("Mantención Programada")
-                    print(f"La probabilidad de sobrevivir es {p_list[1]}")
-                    print(f"El tiempo actual es {self.T}")
-                    hubo_mantencion = True
-                if p_list[2] < self.umbral:
-                    "Mantencion Programada de Escape"
-                    #self.TLast[2] = 0
-                    print("----------------------")
-                    print("Mantención Programada")
-                    print(f"La probabilidad de sobrevivir es {p_list[2]}")
-                    print(f"El tiempo actual es {self.T}")
-                    hubo_mantencion = True
-                if p_list[3] < self.umbral:
-                    "Mantencion Programada de Hidraulico"
-                    #self.TLast[3] = 0
-                    print("----------------------")
-                    print("Mantención Programada")
-                    print(f"La probabilidad de sobrevivir es {p_list[3]}")
-                    print(f"El tiempo actual es {self.T}")
-                    hubo_mantencion = True
-                if p_list[4] < self.umbral:
-                    "Mantencion Programada de Suspension"
-                    #self.TLast[4] = 0
-                    print("----------------------")
-                    print("Mantención Programada")
-                    print(f"La probabilidad de sobrevivir es {p_list[3]}")
-                    print(f"El tiempo actual es {self.T}")
-                    hubo_mantencion = True
-                
-                if hubo_mantencion == True:
-                    """
-                    A diferencia de la política 3, esta PM mantiente sólo a quien lleva más tiempo sin mantenerse.
-                    """
-                    # indice = self.TLast.index(max(self.TLast))
-                    # self.TLast[indice] = 0
-                    for i in range(5):
-                        self.TLast[i] = 0
-                    tfalla = TMantencionP()
-                    print(f"Tiempo de Falla Programada de duración {tfalla}")
-                    print("----------------------")
-                    self.fallas.append(tfalla)
-                    self.T += tfalla
-                    self.camion.TReparacion += tfalla
-                    self.camion.CFallaP += 1
-                    self.camion.CFallas += 1
-                    hubo_mantencion = False
-    
-    def inicio_politica_5(self):
-        self.camion.cargar()
-        self.camion.opera()
-        while self.T < self.TFin:
-            toperacion = self.camion.TPE - self.camion.TOcio
-            self.T += self.camion.TPE
-            for i in range(5):
-                self.TLast[i] += self.camion.TPE
-                #self.TLast2[i] += self.camion.TPE
             
             self.camion.TOperacion += toperacion
             self.camion.cargar()
@@ -464,24 +220,18 @@ class Simulacion:
                 hubo_mantencion = False
                 if p_list[0] < self.umbral:
                     "Mantencion Programada de Sistema Electrico"
-                    #self.TLast[0] = 0
                     hubo_mantencion = True
                 if p_list[1] < self.umbral:
                     "Mantencion Programada de Motor"
-                    #self.TLast[1] = 0
-                    # print("----------------------")
                     hubo_mantencion = True
                 if p_list[2] < self.umbral:
                     "Mantencion Programada de Escape"
-                    #self.TLast[2] = 0
                     hubo_mantencion = True
                 if p_list[3] < self.umbral:
                     "Mantencion Programada de Hidraulico"
-                    #self.TLast[3] = 0
                     hubo_mantencion = True
                 if p_list[4] < self.umbral:
                     "Mantencion Programada de Suspension"
-                    #self.TLast[4] = 0
                     hubo_mantencion = True
                 
                 if hubo_mantencion == True:
