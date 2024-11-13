@@ -37,10 +37,10 @@ def cargar_fallas(nombre_archivo: str, modelo) -> Generator:
             yield from generador_fallas(archivo, modelo)
 
 def cargar_hazzard(nombre_archivo: str) -> Generator:
-    nombre = nombre_archivo + ".csv"
-    with open(nombre, "r", encoding= "latin-1") as archivo:
-        if nombre == "basline_haz.csv":
-            yield from generador_hazard(archivo)
+    nombre =  nombre_archivo + ".csv"
+    ruta = os.path.join("BasesCox", nombre)
+    with open(ruta, "r", encoding="latin-1") as archivo:
+        yield from generador_hazard(archivo)
 
 def cargar_mantenciones(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
@@ -58,4 +58,11 @@ def cargar_probabilidades(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
    
     with open(f"C:/Users/tpin0/Desktop/Proyecto-Capstone/E2/KMs/{nombre}", "r", encoding= "latin-1") as archivo:
+        yield from generador_probabilidad(archivo)
+
+def cargar_probabilidades_2(nombre_archivo: str) -> Generator:
+    nombre = nombre_archivo + ".csv"
+    ruta_base = "../BasesCox"
+    ruta_completa = os.path.join(ruta_base, nombre)
+    with open(ruta_completa, "r", encoding="latin-1") as archivo:
         yield from generador_probabilidad(archivo)

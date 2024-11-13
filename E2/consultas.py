@@ -1,7 +1,8 @@
-from carga_archivos import cargar_operaciones, cargar_operaciones_tiempo, cargar_ocios, cargar_fallas, cargar_mantenciones, cargar_probabilidades, cargar_mantenciones_2
+from carga_archivos import cargar_operaciones, cargar_operaciones_tiempo, cargar_ocios, cargar_fallas, cargar_mantenciones, cargar_probabilidades, cargar_mantenciones_2, cargar_probabilidades_2, cargar_hazzard
 from dados_cargados import dado_cargado_2_1, dado_cargado_3_1, dado_cargado_4_1, dado_cargado_5_1
 from typing import Generator
 import random
+import numpy as np
 
 def rangos_1(g_operaciones: Generator):
     """
@@ -291,3 +292,161 @@ def mantenciones_por_año(g_mantenciones_2: Generator):
 # print("El total de mantenciones programadas para AWOU5IMX el 2018 fueron", programadas)
 # print("El total de mantenciones reactivas para AWOU5IMX el 2018 fueron", reactivas)
 # print("El total de mantenciones para AWOU5IMX el 2018 fueron", total)
+
+def encontrar_hazzard(generador: Generator, horas: int):
+    """
+    Busca Hazzard en Base a tiempo actual
+    """
+    resta_minima = 100000
+    p = 0
+    for hazz in generador:
+        resta = abs(hazz.Tiempo - horas)
+        entre = False
+        if resta < resta_minima:
+            entre = True
+            resta_minima = resta
+        if entre == False:
+            break
+    return hazz.Haz
+
+hazzar= encontrar_hazzard(cargar_hazzard("baseline_haz_engine"), 10)
+print(hazzar)
+
+def Cox_Electrico(hazzard: float, kms_per_time: list):
+    beta = 4.644819e-05 
+    score = beta * kms_per_time
+    
+    # Calcular la probabilidad de supervivencia
+    probabilidad = np.exp(-hazzard * np.exp(score))
+    return probabilidad
+
+def Cox_Motor(hazzard: float, ton_per_time: list, modelo: int):
+    beta_1 = 2.843042e-05  
+    beta_2 = 5.489886e-01 
+    score = beta_1 * ton_per_time + beta_2 * modelo
+    
+    # Calcular la probabilidad de supervivencia
+    probabilidad = np.exp(-hazzard * np.exp(score))
+    return probabilidad
+
+def Cox_Escape(hazzard: float, ton_per_time: list):
+    beta = 2.312856e-05 
+    score = beta * ton_per_time
+    
+    # Calcular la probabilidad de supervivencia
+    probabilidad = np.exp(-hazzard * np.exp(score))
+    return probabilidad
+
+def Cox_Hidraulico(hazzard: float, kms_per_time: list):
+    beta = 3.683101e-05  
+    score = beta * kms_per_time
+    
+    # Calcular la probabilidad de supervivencia
+    probabilidad = np.exp(-hazzard * np.exp(score))
+    return probabilidad
+
+def Cox_Suspension(hazzard: float, kms_per_time: list):
+    beta = 6.439217e-05   
+    score = beta * kms_per_time
+    
+    # Calcular la probabilidad de supervivencia
+    probabilidad = np.exp(-hazzard * np.exp(score))
+    return probabilidad
+
+def Tipo_Falla_Cox(tiempo_act: float, lista_kms: list, lista_ton: list, ton_teorico_per_time: float, kms_teorico_per_time: float, modelo: int):
+
+    g_electrico = cargar_hazzard("baseline_haz_electrical")
+    g_motor = cargar_hazzard("baseline_haz_engine")
+    g_escape = cargar_hazzard("baseline_haz_exhaust")
+    g_hidraulico = cargar_hazzard("baseline_haz_hydraulic")
+    g_suspension = cargar_hazzard("baseline_haz_suspension")
+
+    haz_electrico = encontrar_hazzard(g_electrico,tiempo_act)
+    haz_motor = encontrar_hazzard(g_motor, tiempo_act)
+    haz_escape = encontrar_hazzard(g_escape, tiempo_act)
+    haz_hidraulico = encontrar_hazzard(g_hidraulico, tiempo_act)
+    haz_suspension = encontrar_hazzard(g_suspension, tiempo_act)
+
+    p_1_el = Cox_Electrico(haz_electrico, lista_kms[0])
+    p_2_el = Cox_Electrico(haz_electrico, lista_kms[0] + kms_teorico_per_time)
+
+    p_1_m = Cox_Motor(haz_motor, lista_ton[1], modelo)
+    p_2_m = Cox_Motor(haz_motor, lista_ton[1] + ton_teorico_per_time, modelo)
+
+    p_1_es = Cox_Escape(haz_escape, lista_ton[2])
+    p_2_es = Cox_Escape(haz_escape, lista_ton[2] + ton_teorico_per_time)
+
+    p_1_h = Cox_Hidraulico(haz_hidraulico, lista_kms[3])
+    p_2_h = Cox_Hidraulico(haz_hidraulico, lista_kms[3] + kms_teorico_per_time)
+
+    p_1_s = Cox_Suspension(haz_suspension, lista_kms[4])
+    p_2_s = Cox_Suspension(haz_suspension, lista_kms[4] + kms_teorico_per_time)
+
+    p_condicionales = [p_1_el/p_2_el, p_1_m/p_2_m, p_1_es/p_2_es, p_1_h/p_2_h, p_1_s/p_2_s]
+    eventos_posibles = []
+    u = random.randint(0, 10000)/10000
+    for i in range(5):
+        if u > p_condicionales[i]:
+            "La falla i puede ocurrir"
+            evento = str(i+1)
+            eventos_posibles.append(evento)
+            
+    probabilidades_filtradas = []
+    for e in eventos_posibles:
+        i = int(e) - 1
+        probabilidades_filtradas.append(p_condicionales[i])
+
+    if len(eventos_posibles) > 1:
+        "puede ocurrir más de un evento"
+        if len(eventos_posibles) == 5:
+            "pueden ocurrir 5 eventos"
+            i = dado_cargado_5_1(probabilidades_filtradas, eventos_posibles)
+
+        elif len(eventos_posibles) == 4:
+            "pueden ocurrir 4 eventos"
+            i = dado_cargado_4_1(probabilidades_filtradas, eventos_posibles)
+
+        elif len(eventos_posibles) == 3:
+            "pueden ocurrir 3 eventos"
+            i = dado_cargado_3_1(probabilidades_filtradas, eventos_posibles)
+
+        elif len(eventos_posibles) == 2:
+            "pueden ocurrir 2 eventos"
+            i = dado_cargado_2_1(probabilidades_filtradas, eventos_posibles)
+
+    if len(eventos_posibles) == 1:
+        "ocurre solo 1 evento"
+        i = eventos_posibles[0]
+
+    if len(eventos_posibles) == 0:
+        "no ocurre ningun evento"
+        i = str(0)
+
+    return i
+
+def Probabilidades_Cox(tiempo_act: float, lista_kms: list, lista_ton: list, modelo: int):
+
+    g_electrico = cargar_hazzard("baseline_haz_electrical")
+    g_motor = cargar_hazzard("baseline_haz_engine")
+    g_escape = cargar_hazzard("baseline_haz_exhaust")
+    g_hidraulico = cargar_hazzard("baseline_haz_hydraulic")
+    g_suspension = cargar_hazzard("baseline_haz_suspension")
+
+    haz_electrico = encontrar_hazzard(g_electrico, tiempo_act)
+    haz_motor = encontrar_hazzard(g_motor, tiempo_act)
+    haz_escape = encontrar_hazzard(g_escape, tiempo_act)
+    haz_hidraulico = encontrar_hazzard(g_hidraulico, tiempo_act)
+    haz_suspension = encontrar_hazzard(g_suspension, tiempo_act)
+
+    p_1 = Cox_Electrico(haz_electrico, lista_kms[0])
+
+    p_2 = Cox_Motor(haz_motor, lista_ton[1], modelo)
+
+    p_3 = Cox_Escape(haz_escape, lista_ton[2])
+
+    p_4 = Cox_Hidraulico(haz_hidraulico, lista_kms[3])
+
+    p_5 = Cox_Suspension(haz_suspension, lista_kms[4])
+
+    probabilidades = [p_1, p_2, p_3, p_4, p_5]
+    return probabilidades
