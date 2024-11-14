@@ -93,7 +93,7 @@ porcentajes = []
 
 if __name__ == "__main__":
     start = time.time()
-    simulacion = Simulacion(8640, 0.6)
+    simulacion = Simulacion(8460, 0.6)
     simulacion.inicio_politica_umbral_Cox()
     simulacion.KPIs()
     end = time.time()

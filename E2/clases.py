@@ -4,6 +4,7 @@ import random
 import pandas as pd
 from lifelines import KaplanMeierFitter
 from consultas import Tipo_Falla, probabilidades, cantidades, Tipo_Falla_Cox, Probabilidades_Cox
+import time
 
 class Camion:
     def __init__(self, tipo, id):
@@ -33,6 +34,8 @@ class Camion:
         "Vectores por sistema"
         self.ton_per_time = [0, 0, 0, 0, 0] # lista que cuenta toneladas/t para la operación, sirve para cox
         self.kms_per_time = [0, 0, 0, 0, 0] # lista que cuenta kilómetros/t para la operación, sirve para cox
+        self.ton_per_time_virtual = 0 # lista que cuenta toneladas/t para la operación, sirve para cox
+        self.kms_per_time_virtual = 0 # lista que cuenta kilómetros/t para la operación, sirve para cox
 
     def cargar(self):
         """
@@ -60,12 +63,17 @@ class Camion:
         k = Kilometros()
         topera = Operacion()
         return k, topera
+    
+    def t_ocio_teorico(self):
+        o = Ocio()
+        return o
 
 class Simulacion:
     def __init__(self, tfin, umbral):
         self.camion = Camion("Model_A", "AWOU5IMX")
         self.T = 0
         self.Tdia = 0
+        self.TdiaVirtual = 0
         self.Tdia5 = 0
         self.TLast = [0, 0, 0, 0, 0] 
         self.TFin = tfin # inicialmente con 30 días y 1 camión
@@ -210,6 +218,7 @@ class Simulacion:
 
             i = Tipo_Falla(self.TLast, cantidades("maintenance_data", "AWOU5IMX"))
             if i != str(0):
+                print("Mantención reactiva del sistema", i)
                 "El equipo Falla"
                 nivel = Nivel_Falla()
                 if nivel == 1:
@@ -254,6 +263,7 @@ class Simulacion:
                     hubo_mantencion = True
                 
                 if hubo_mantencion == True:
+                    print("Mantención programada")
                     for i in range(5):
                         self.TLast[i] = 0
                     tfalla = TMantencionP()
@@ -268,15 +278,15 @@ class Simulacion:
         self.camion.cargar()
         self.camion.opera()
         while self.T < self.TFin:
+            start = time.time()
             toperacion = self.camion.TPE - self.camion.TOcio
             self.T += self.camion.TPE
             for i in range(5):
                 self.TLast[i] += self.camion.TPE
-            
-            self.camion.TOperacion += toperacion
-            for i in range(5):
                 self.camion.ton_per_time[i] += self.camion.carga/toperacion
                 self.camion.kms_per_time[i] += self.camion.carga/toperacion
+            
+            self.camion.TOperacion += toperacion
 
             self.camion.cargar()
             self.camion.opera()
@@ -287,8 +297,16 @@ class Simulacion:
             ton_per_time = ton/t_operacion
             kms_per_time = kms/t_operacion
 
-            i = Tipo_Falla_Cox(self.T, self.camion.kms_per_time, self.camion.ton_per_time, ton_per_time, kms_per_time, 1)
+            end = time.time()
+            tiempo_usado = end - start
+            print("Tiempo 1", tiempo_usado)
+
+            # print(f"Revisión Cox en tiempo {self.T}")
+            i, probabilidades = Tipo_Falla_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, ton_per_time, kms_per_time, 1)
+            # print(f"Fin Revisión Cox en tiempo {self.T}")
+            # print(i)
             if i != str(0):
+                print(f"El equipo falla reactivamente en el tiempo {self.T}")
                 "El equipo Falla"
                 nivel = Nivel_Falla()
                 if nivel == 1:
@@ -310,11 +328,16 @@ class Simulacion:
                 self.T += tfalla
                 self.tiempos_fallas.append(tfalla)
                 self.camion.TReparacion += tfalla
+
                 self.TLast[int(i)-1] = 0
+                self.camion.ton_per_time[int(i)-1] = 0
+                self.camion.kms_per_time[int(i)-1] = 0
+
                 self.camion.CFallas += 1
             else:
+                start = time.time()
                 "El equipo no falla"
-                p_list = Probabilidades_Cox(self.T, self.camion.kms_per_time, self.camion.ton_per_time, 1)
+                p_list = probabilidades
                 hubo_mantencion = False
                 bajo_umbral = []
                 if p_list[0] < self.umbral:
@@ -337,16 +360,30 @@ class Simulacion:
                     "Mantencion Programada de Suspension"
                     hubo_mantencion = True
                     bajo_umbral.append(4)
-                
-                if hubo_mantencion == True:
-                    "Se mantendrá quien haya bajado del umbral cox y lleve menos tiempo sin mantener"
-                    tlast_filtrado = []
-                    for indice in bajo_umbral:
-                        tlast_filtrado.append(self.TLast[indice])
-                    indice = tlast_filtrado.index(max(tlast_filtrado))
-                    indice_max = bajo_umbral[indice]
 
-                    self.TLast[indice_max] = 0
+                end = time.time()
+                tiempo_usado = end - start
+                print("Tiempo 2", tiempo_usado)
+
+                if hubo_mantencion == True:
+                    start = time.time()
+
+                    print(f"El equipo falla proactivamente en el tiempo {self.T}")
+                    "Se mantendrá quien haya bajado del umbral cox y lleve menos tiempo sin mantener"
+                    # tlast_filtrado = []
+                    # for indice in bajo_umbral:
+                    #     tlast_filtrado.append(self.TLast[indice])
+                    # indice = tlast_filtrado.index(max(tlast_filtrado))
+                    # indice_max = bajo_umbral[indice]
+
+                    # self.TLast[indice_max] = 0
+                    # self.camion.ton_per_time[indice_max] = 0
+                    # self.camion.kms_per_time[indice_max] = 0
+                    for i in range(5):
+                        self.TLast[i] = 0
+                        self.camion.ton_per_time[i] = 0
+                        self.camion.kms_per_time[i] = 0
+                        
                     tfalla = TMantencionP()
                     self.tiempos_fallas.append(tfalla)
                     self.T += tfalla
@@ -354,6 +391,191 @@ class Simulacion:
                     self.camion.CFallaP += 1
                     self.camion.CFallas += 1
                     hubo_mantencion = False
+
+                    end = time.time()
+                    tiempo_usado = end - start
+                    print("Tiempo 3", tiempo_usado)
+
+    def inicio_politica_Cox_diario(self):
+        while self.T < self.TFin:
+            if self.TdiaVirtual < 24:
+                "Dia virtual"
+                ton = self.camion.carga_teorico()
+                kms, t_operacion= self.camion.opera_teorico()
+                o = self.camion.t_ocio_teorico()
+                ton_per_time = ton/t_operacion
+                kms_per_time = kms/t_operacion
+                self.TdiaVirtual += (t_operacion + o)
+                self.camion.kms_per_time_virtual += kms_per_time
+                self.camion.ton_per_time_virtual += ton_per_time
+            else:
+                "Termina el día virtual"
+                self.TdiaVirtual = 0
+                "Tengo que ver si lo sobrevivo o no"
+                i, probabilidades = Tipo_Falla_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, self.camion.ton_per_time_virtual, self.camion.kms_per_time_virtual, 1)
+                self.camion.kms_per_time_virtual = 0
+                self.camion.ton_per_time_virtual = 0
+                if i != str(0):
+                    # print(f"El equipo falla reactivamente en el tiempo {self.T}")
+                    print("------Mantención Reactiva------")
+                    "El equipo Falla"
+                    nivel = Nivel_Falla()
+                    if nivel == 1:
+                        "Falla tipo 1"
+                        tfalla = TFalla1()
+                    elif nivel == 2:
+                        "Falla tipo 2"
+                        tfalla = TFalla2()
+                    elif nivel == 3:
+                        "Falla tipo 3"
+                        tfalla = TFalla3()
+                    elif nivel == 4:
+                        "Falla tipo 4"
+                        tfalla = TFalla4()
+                    elif nivel == 5:
+                        "Falla tipo 5"
+                        tfalla = TFalla5()
+                    self.tiempos_entre_falla.append(self.TLast[nivel-1])
+                    self.T += tfalla
+                    self.tiempos_fallas.append(tfalla)
+                    self.camion.TReparacion += tfalla
+
+                    self.TLast[int(i)-1] = 0
+                    self.camion.ton_per_time[int(i)-1] = 0
+                    self.camion.kms_per_time[int(i)-1] = 0
+
+                    self.camion.CFallas += 1
+                else:
+                    print("Sobreviviste un día más!")
+                    while self.Tdia < 24:
+                        self.camion.cargar()
+                        self.camion.opera()
+                        toperacion = self.camion.TPE - self.camion.TOcio
+                        self.camion.TOperacion += toperacion
+                        self.T += self.camion.TPE
+                        self.Tdia += self.camion.TPE
+                        for i in range(5):
+                            self.TLast[i] += self.camion.TPE
+                            self.camion.ton_per_time[i] += self.camion.carga/toperacion
+                            self.camion.kms_per_time[i] += self.camion.carga/toperacion
+                        
+                        "Ver si alguna baja del umbral"
+                        mantencion_programada = False
+                        p = Probabilidades_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, 1)
+                        # mantener = []
+                        for i in range(5):
+                            if p[i] < self.umbral:
+                                mantencion_programada = True
+                                # mantener.append(i)
+                        
+                        if mantencion_programada == True:
+                            # "Mantener el que lleva más tiempo sin mantener"
+                            # posibles_PM = [self.TLast[i] for i in mantener]
+                            # indice = posibles_PM.index(max(posibles_PM))
+                            # indice_real = mantener[indice]
+                            print("------Mantención Programada------")
+                            for i in range(5):
+                                self.TLast[i] = 0
+                                self.camion.ton_per_time[i] = 0
+                                self.camion.kms_per_time[i] = 0
+                            # self.TLast[indice_real] = 0
+                            # self.camion.ton_per_time[i] = 0
+                            # self.camion.kms_per_time[i] = 0
+                                        
+                            tfalla = TMantencionP()
+                            self.tiempos_fallas.append(tfalla)
+                            self.T += tfalla
+                            self.camion.TReparacion += tfalla
+                            self.camion.CFallaP += 1
+                            self.camion.CFallas += 1
+                            mantencion_programada = False
+                    self.Tdia = 0
+
+    def inicio_politica_Cox_diario_simplificado(self):
+            while self.T < self.TFin:
+                "Creación dia virtual"
+                "Dia virtual"
+                self.camion.kms_per_time_virtual = 126.4
+                self.camion.ton_per_time_virtual = 161.1
+
+                "Tengo que ver si lo sobrevivo o no"
+                i, probabilidades = Tipo_Falla_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, self.camion.ton_per_time_virtual, self.camion.kms_per_time_virtual, 1)
+                if i != str(0):
+                    # print(f"El equipo falla reactivamente en el tiempo {self.T}")
+                    print("------Mantención Reactiva------")
+                    "El equipo Falla"
+                    nivel = Nivel_Falla()
+                    if nivel == 1:
+                        "Falla tipo 1"
+                        tfalla = TFalla1()
+                    elif nivel == 2:
+                        "Falla tipo 2"
+                        tfalla = TFalla2()
+                    elif nivel == 3:
+                        "Falla tipo 3"
+                        tfalla = TFalla3()
+                    elif nivel == 4:
+                        "Falla tipo 4"
+                        tfalla = TFalla4()
+                    elif nivel == 5:
+                        "Falla tipo 5"
+                        tfalla = TFalla5()
+                    self.tiempos_entre_falla.append(self.TLast[nivel-1])
+                    self.T += tfalla
+                    self.tiempos_fallas.append(tfalla)
+                    self.camion.TReparacion += tfalla
+
+                    self.TLast[int(i)-1] = 0
+                    self.camion.ton_per_time[int(i)-1] = 0
+                    self.camion.kms_per_time[int(i)-1] = 0
+
+                    self.camion.CFallas += 1
+                else:
+                    print("Sobreviviste un día más!")
+                    while self.Tdia < 24:
+                        self.camion.cargar()
+                        self.camion.opera()
+                        toperacion = self.camion.TPE - self.camion.TOcio
+                        self.camion.TOperacion += toperacion
+                        self.T += self.camion.TPE
+                        self.Tdia += self.camion.TPE
+                        for i in range(5):
+                            self.TLast[i] += self.camion.TPE
+                            self.camion.ton_per_time[i] += self.camion.carga/toperacion
+                            self.camion.kms_per_time[i] += self.camion.carga/toperacion
+                        
+                        "Ver si alguna baja del umbral"
+                        mantencion_programada = False
+                        p = Probabilidades_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, 1)
+                        # mantener = []
+                        for i in range(5):
+                            if p[i] < self.umbral:
+                                mantencion_programada = True
+                                # mantener.append(i)
+                        
+                        if mantencion_programada == True:
+                            # "Mantener el que lleva más tiempo sin mantener"
+                            # posibles_PM = [self.TLast[i] for i in mantener]
+                            # indice = posibles_PM.index(max(posibles_PM))
+                            # indice_real = mantener[indice]
+                            print("------Mantención Programada------")
+                            for i in range(5):
+                                self.TLast[i] = 0
+                                self.camion.ton_per_time[i] = 0
+                                self.camion.kms_per_time[i] = 0
+                            # self.TLast[indice_real] = 0
+                            # self.camion.ton_per_time[i] = 0
+                            # self.camion.kms_per_time[i] = 0
+                                        
+                            tfalla = TMantencionP()
+                            self.tiempos_fallas.append(tfalla)
+                            self.T += tfalla
+                            self.camion.TReparacion += tfalla
+                            self.camion.CFallaP += 1
+                            self.camion.CFallas += 1
+                            mantencion_programada = False
+                    self.Tdia = 0
+
 
     def KPIs(self):
         "Tiempo Operando"

@@ -36,11 +36,16 @@ def cargar_fallas(nombre_archivo: str, modelo) -> Generator:
         if nombre == "maintenance_data.csv":
             yield from generador_fallas(archivo, modelo)
 
+# def cargar_hazzard(nombre_archivo: str) -> Generator:
+#     nombre =  nombre_archivo + ".csv"
+#     ruta = os.path.join("BasesCox", nombre)
+#     with open(ruta, "r", encoding="latin-1") as archivo:
+#         yield from generador_hazard(archivo)
 def cargar_hazzard(nombre_archivo: str) -> Generator:
-    nombre =  nombre_archivo + ".csv"
-    ruta = os.path.join("BasesCox", nombre)
-    with open(ruta, "r", encoding="latin-1") as archivo:
+    nombre = nombre_archivo + ".csv"
+    with open(f"C:/Users/tpin0/Desktop/Entrega-Final/E2/BasesCox/{nombre}", "r", encoding= "latin-1") as archivo:
         yield from generador_hazard(archivo)
+
 
 def cargar_mantenciones(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
