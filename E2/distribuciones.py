@@ -3,6 +3,8 @@ import math
 from scipy.stats import gamma
 import numpy as np
 
+np.random.seed(42)
+
 def Ocio():
     """
     Función para asignar tiempos de ocio a camión AWOU5IMX

@@ -299,14 +299,14 @@ class Simulacion:
 
             end = time.time()
             tiempo_usado = end - start
-            print("Tiempo 1", tiempo_usado)
+            #print("Tiempo 1", tiempo_usado)
 
             # print(f"Revisión Cox en tiempo {self.T}")
             i, probabilidades = Tipo_Falla_Cox(self.TLast, self.camion.kms_per_time, self.camion.ton_per_time, ton_per_time, kms_per_time, 1)
             # print(f"Fin Revisión Cox en tiempo {self.T}")
             # print(i)
             if i != str(0):
-                print(f"El equipo falla reactivamente en el tiempo {self.T}")
+                #print(f"El equipo falla reactivamente en el tiempo {self.T}")
                 "El equipo Falla"
                 nivel = Nivel_Falla()
                 if nivel == 1:
@@ -363,12 +363,12 @@ class Simulacion:
 
                 end = time.time()
                 tiempo_usado = end - start
-                print("Tiempo 2", tiempo_usado)
+                #print("Tiempo 2", tiempo_usado)
 
                 if hubo_mantencion == True:
                     start = time.time()
 
-                    print(f"El equipo falla proactivamente en el tiempo {self.T}")
+                    #print(f"El equipo falla proactivamente en el tiempo {self.T}")
                     "Se mantendrá quien haya bajado del umbral cox y lleve menos tiempo sin mantener"
                     # tlast_filtrado = []
                     # for indice in bajo_umbral:
@@ -394,7 +394,7 @@ class Simulacion:
 
                     end = time.time()
                     tiempo_usado = end - start
-                    print("Tiempo 3", tiempo_usado)
+                    #print("Tiempo 3", tiempo_usado)
 
     def inicio_politica_Cox_diario(self):
         while self.T < self.TFin:

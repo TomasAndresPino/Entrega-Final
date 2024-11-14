@@ -4,6 +4,8 @@ from typing import Generator
 import random
 import numpy as np
 
+np.random.seed(42)
+
 def rangos_1(g_operaciones: Generator):
     """
     Quiero ver cuantas veces el camión 1 está en los rangos 5-15 de carga y 20-45 de carga
@@ -157,6 +159,8 @@ def p_segun_t_mas_cerca(generador: Generator, horas: int):
             resta_2 = True
             resta_minima = resta
             p = tiempo.Survival
+        else:
+            break
     #print("La probabilidad es", abs(p-p2))
     return p2/p
 
@@ -303,9 +307,12 @@ def encontrar_hazzard(generador: Generator, horas: int):
         if resta < resta_minima:
             resta_minima = resta
             haz_1 = hazz.Haz
+            t1 = hazz.Tiempo
         if resta > resta_minima:
             haz_2 = hazz.Haz
+            t2 = hazz.Tiempo
             break
+    haz_2 = haz_1 + ((horas - t1)/(t2 - t1))*(haz_2 - haz_1)
     return haz_1, haz_2
 
 # h_1, h_2 = encontrar_hazzard(cargar_hazzard("baseline_haz_electrical_filtrado"), 4.45)

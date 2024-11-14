@@ -1,4 +1,7 @@
 import random
+import numpy as np
+
+np.random.seed(42)
 
 def dado_cargado_5():
     u = random.uniform(0, 1)
