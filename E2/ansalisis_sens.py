@@ -1,6 +1,7 @@
 from clases import Simulacion
 import time
 import datetime
+import pandas as pd
 
 def simular(umbrales, cantidad_x_umbral, tiempo):
 
@@ -16,8 +17,6 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         tiempo_sin = list()
         
         for i in range (cantidad_x_umbral):
-            
-
             simulacion = Simulacion(tiempo, umbral)
             simulacion.inicio_politica_umbral_Cox()
 
@@ -53,33 +52,49 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         var6 = sum(tiempo_sin) / len(tiempo_sin)
         var7 = sum(tiempo_op)/sum(tiempo_rep)
 
-        # Nombre del archivo de texto donde se guardarán los resultados
-        log_file = "resultados_simulacion.txt"
-
-        # Obtener la fecha y hora actuales para registrar cuándo se ejecutó
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Crear el formato de texto que deseas guardar
-        log_text = f"""
-        === Ejecución: {timestamp} umbral {umbral} ===
-        Fallas totales promedio: {var1}
-        Fallas programadas promedio: {var2}
-        Fallas reactivas promedio: {var3}
-        Tiempo promedio entre fallas: {var4}
-        Tiempo de operacion promedio: {var5}
-        Tiempo sin operar promedio: {var6}
-        Tiempo de Operacion/Tiempo de Reparacion: {var7}
-        Tiempo total de ejecución para {cantidad_x_umbral} repeticiones de {tiempo/8640} año/s es: {time.time() - start} segundos
-        =============================
-        """
-
-        # Escribir en el archivo en modo 'append' (agregar al final)
-        with open(log_file, "a", encoding="utf-8") as file:
-            file.write(log_text)
-
-        print("Valores guardados en 'resultados_simulacion.txt'")   
+        data = {
+            "Umbral": [umbral],
+            "Fallas totales promedio": [var1],
+            "Fallas programadas promedio": [var2],
+            "Fallas reactivas promedio": [var3],
+            "Tiempo promedio entre fallas": [var4],
+            "Tiempo de operacion promedio": [var5],
+            "Tiempo sin operar promedio": [var6],
+            "Tiempo de Operacion/Tiempo de Reparacion": [var7]
+        }
                     
+        df_new = pd.DataFrame(data)
 
-simular([0.6, 0.4], 1, 8640)
+        # Nombre del archivo CSV donde se guardarán los datos
+        csv_file = "registro_variables.csv"
+
+        try:
+            # Intentar leer el archivo CSV existente
+            df_existing = pd.read_csv(csv_file)
+
+            # Concatenar el nuevo DataFrame con el existente
+            df_final = pd.concat([df_existing, df_new], ignore_index=True)
+
+        except FileNotFoundError:
+            # Si el archivo no existe, usar solo el nuevo DataFrame
+            df_final = df_new
+
+        # Guardar el DataFrame en el archivo CSV
+        df_final.to_csv(csv_file, index=False, encoding="utf-8")
+
+        print("Valores guardados en 'registro_variables.csv'.")
+
+simular([0.1, 0.12, 0.14, 0.16, 0.18], 5, 8640)
+
+
+#[0.1, 0.12, 0.14, 0.16, 0.18] asi se deberia ver la lista
+
+#mauro simula desde 0.1 0.18 de 0.02 en 0.02
+#pino simula desde 0.2 hasta 0.28 de 0.02 en 0.02
+#manuel simula desde 0.3 hasta 0.38 de 0.02 en 0.02
+#mabbot simula desde 0.4 hasta 0.48 de 0.02 en 0.02
+
+
+
 
 

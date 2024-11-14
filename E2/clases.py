@@ -18,6 +18,7 @@ class Camion:
         self.kilometros = 0 #kilometros de la operación actual
         self.CFallas = 0 # cantidad de fallas
         self.CFallaP = 0
+        self.CFallaF = 0
         self.TOperacion = 0 # tiempo en operacion
         self.TReparacion = 0 # tiempo en reparacion
 
@@ -271,7 +272,6 @@ class Simulacion:
                     self.T += tfalla
                     self.camion.TReparacion += tfalla
                     self.camion.CFallaP += 1
-                    self.camion.CFallas += 1
                     hubo_mantencion = False
 
     def inicio_politica_umbral_Cox(self):

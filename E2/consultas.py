@@ -297,7 +297,7 @@ def mantenciones_por_año(g_mantenciones_2: Generator):
 # print("El total de mantenciones reactivas para AWOU5IMX el 2018 fueron", reactivas)
 # print("El total de mantenciones para AWOU5IMX el 2018 fueron", total)
 
-def encontrar_hazzard(generador: Generator, horas: int):
+def encontrar_hazzard_og(generador: Generator, horas: int):
     """
     Busca Hazzard en Base a tiempo actual
     """
@@ -308,12 +308,25 @@ def encontrar_hazzard(generador: Generator, horas: int):
             resta_minima = resta
             haz_1 = hazz.Haz
             t1 = hazz.Tiempo
-        if resta > resta_minima:
+            continue
+        if resta >= resta_minima:
             haz_2 = hazz.Haz
             t2 = hazz.Tiempo
             break
     haz_2 = haz_1 + ((horas - t1)/(t2 - t1))*(haz_2 - haz_1)
     return haz_1, haz_2
+
+def encontrar_hazzard(generador, t):
+    anterior = None
+    for hazz in generador:
+        # Si encontramos el primer tiempo mayor que t
+        if hazz.Tiempo > t:
+
+            t1, haz_1 = anterior.Tiempo, anterior.Haz
+            t2, haz_2 = hazz.Tiempo, hazz.Haz
+            interpolado = haz_1 + ((t - t1) / (t2 - t1)) * (haz_2 - haz_1)
+            return haz_1, interpolado
+        anterior = hazz
 
 # h_1, h_2 = encontrar_hazzard(cargar_hazzard("baseline_haz_electrical_filtrado"), 4.45)
 # print("H1", h_1)
@@ -400,7 +413,14 @@ def Tipo_Falla_Cox(T_last: list, lista_kms: list, lista_ton: list, ton_teorico_p
     p_1_s = Cox_Suspension(haz_s_1, lista_kms[4])
     p_2_s = Cox_Suspension(haz_s_2, lista_kms[4] + kms_teorico_per_time)
 
-    p_condicionales = [p_2_el/p_1_el, p_2_m/p_1_m, p_2_es/p_1_es, p_2_h/p_1_h, p_2_s/p_1_s]
+    p_condicionales = [
+    p_2_el / p_1_el if p_1_el != 0 else 0,
+    p_2_m / p_1_m if p_1_m != 0 else 0,
+    p_2_es / p_1_es if p_1_es != 0 else 0,
+    p_2_h / p_1_h if p_1_h != 0 else 0,
+    p_2_s / p_1_s if p_1_s != 0 else 0
+]
+
     p = [p_2_el, p_2_m, p_2_es, p_2_h, p_2_s]
     # print("PROBABILIDADES", p_condicionales)
     eventos_posibles = []

@@ -46,7 +46,6 @@ def cargar_hazzard(nombre_archivo: str) -> Generator:
     with open(f"C:/Users/manue/OneDrive/Escritorio/Entrega-Final/E2/BasesCox/{nombre}", "r", encoding= "latin-1") as archivo:
         yield from generador_hazard(archivo)
 
-
 def cargar_mantenciones(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
     with open(nombre, "r", encoding= "latin-1") as archivo:

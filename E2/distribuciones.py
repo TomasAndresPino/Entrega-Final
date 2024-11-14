@@ -106,6 +106,3 @@ def TFalla5():
     scale = 40.860870050932625
     tiempo = loc + scale*np.random.weibull(c)
     return tiempo
-
-tiempo = TFalla5()
-print(tiempo)
