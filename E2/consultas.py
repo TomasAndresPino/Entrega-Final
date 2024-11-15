@@ -317,6 +317,7 @@ def encontrar_hazzard_og(generador: Generator, horas: int):
     return haz_1, haz_2
 
 def encontrar_hazzard(generador, t):
+    t = abs(t)
     anterior = None
     for hazz in generador:
         # Si encontramos el primer tiempo mayor que t

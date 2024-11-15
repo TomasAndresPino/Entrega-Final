@@ -86,6 +86,8 @@ def dado_cargado_5_1(probabilidades_filtradas: list, eventos_posibles: list):
     total = 0
     for p in probabilidades_filtradas:
         total += p
+    if p == 0 :
+        return str(0)
     p_1 = probabilidades_filtradas[0]/total
     p_2 = probabilidades_filtradas[1]/total
     p_3 = probabilidades_filtradas[2]/total
@@ -109,6 +111,8 @@ def dado_cargado_4_1(probabilidades_filtradas: list, eventos_posibles: list):
     total = 0
     for p in probabilidades_filtradas:
         total += p
+    if p == 0 :
+        return str(0)
     p_1 = probabilidades_filtradas[0]/total
     p_2 = probabilidades_filtradas[1]/total
     p_3 = probabilidades_filtradas[2]/total
@@ -130,6 +134,8 @@ def dado_cargado_3_1(probabilidades_filtradas: list, eventos_posibles: list):
     total = 0
     for p in probabilidades_filtradas:
         total += p
+    if p == 0 :
+        return str(0)
     p_1 = probabilidades_filtradas[0]/total
     p_2 = probabilidades_filtradas[1]/total
     p_3 = probabilidades_filtradas[2]/total
@@ -148,6 +154,8 @@ def dado_cargado_2_1(probabilidades_filtradas: list, eventos_posibles: list):
     total = 0
     for p in probabilidades_filtradas:
         total += p
+    if p == 0 :
+        return str(0)
     p_1 = probabilidades_filtradas[0]/total
     p_2 = probabilidades_filtradas[1]/total
     if 0 <= u < p_1:
