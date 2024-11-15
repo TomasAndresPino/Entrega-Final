@@ -11,6 +11,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         Ftotales = list()
         Fprogramadas = list()
         Freactivas = list()
+        TReparación = list()
         mtbf = list()
         tiempo_op = list()
         tiempo_rep = list()
@@ -21,9 +22,11 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
             simulacion.inicio_politica_umbral_Cox()
 
             fallas_totales = simulacion.camion.CFallas 
+
             fallas_programadas = simulacion.camion.CFallaP
             fallas_reactivas = fallas_totales - fallas_programadas
             Ftotales.append(fallas_totales)
+            TReparación.append(simulacion.camion.TReparacion)
             Fprogramadas.append(fallas_programadas)
             Freactivas.append(fallas_reactivas)
             if len(simulacion.tiempos_entre_falla) != 0:
@@ -42,8 +45,9 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         print(f"Tiempo de operacion promedio: {sum(tiempo_op) / len(tiempo_op)}")
         print(f"Tiempo sin operar promedio: {sum(tiempo_sin) / len(tiempo_sin)}")
         print(f"Tiempo de Operacion/Tiempo de Reparacion: {sum(tiempo_op)/sum(tiempo_rep)}")  
+        print(f"Tiempo de reparació total promedio: {sum(TReparación)/len(TReparación)}")
         print(f"\n\nTiempo total de ejecución para {cantidad_x_umbral} repeticiones de {tiempo/8640} año/s es: {time.time() - start} segundos")
-
+        
         var1 = sum(Ftotales)/len(Ftotales)
         var2 = sum(Fprogramadas)/len(Fprogramadas)
         var3 = sum(Freactivas)/len(Freactivas)
@@ -51,6 +55,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         var5 = sum(tiempo_op) / len(tiempo_op)
         var6 = sum(tiempo_sin) / len(tiempo_sin)
         var7 = sum(tiempo_op)/sum(tiempo_rep)
+        var8 = sum(TReparación)/len(TReparación)
 
         data = {
             "Umbral": [umbral],
@@ -60,7 +65,8 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
             "Tiempo promedio entre fallas": [var4],
             "Tiempo de operacion promedio": [var5],
             "Tiempo sin operar promedio": [var6],
-            "Tiempo de Operacion/Tiempo de Reparacion": [var7]
+            "Tiempo de Operacion/Tiempo de Reparacion": [var7],
+            "Tiempo de reparació total promedio": [var8]
         }
                     
         df_new = pd.DataFrame(data)
@@ -84,7 +90,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
 
         print("Valores guardados en 'registro_variables.csv'.")
 
-simular([0.1, 0.12, 0.14, 0.16, 0.18], 5, 8640)
+simular([0.1, 0.12, 0.14, 0.16, 0.18], 2, 8640)
 
 
 #[0.1, 0.12, 0.14, 0.16, 0.18] asi se deberia ver la lista
