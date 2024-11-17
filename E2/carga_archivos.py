@@ -43,7 +43,7 @@ def cargar_fallas(nombre_archivo: str, modelo) -> Generator:
 #         yield from generador_hazard(archivo)
 def cargar_hazzard(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
-    with open(f"C:/Users/manue/OneDrive/Escritorio/Entrega-Final/E2/BasesCox/{nombre}", "r", encoding= "latin-1") as archivo:
+    with open(f"C:/Users/tpin0/Desktop/Entrega-Final/E2/BasesCox/{nombre}", "r", encoding= "latin-1") as archivo:
         yield from generador_hazard(archivo)
 
 def cargar_mantenciones(nombre_archivo: str) -> Generator:
@@ -61,7 +61,7 @@ def cargar_mantenciones_2(nombre_archivo: str) -> Generator:
 def cargar_probabilidades(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
    
-    with open(f"C:/Users/manue/OneDrive/Escritorio/Proyecto-Capstone/E2/KMs/{nombre}", "r", encoding= "latin-1") as archivo:
+    with open(f"C:/Users/tpin0/Desktop/Entrega-Final/E2/KMs/{nombre}", "r", encoding= "latin-1") as archivo:
         yield from generador_probabilidad(archivo)
 
 def cargar_probabilidades_2(nombre_archivo: str) -> Generator:
