@@ -1,125 +1,157 @@
 from clases import Simulacion
 import time
-import datetime
 import pandas as pd
+from typing import List
 
 # Definir la función frange
-def frange(start, stop, step):
+def frange(start: float, stop: float, step: float):
     while start <= stop:
         yield start
         start += step
 
-secuencia = [round(x, 3) for x in frange(0.282, 0.29, 0.001)]
+def simular(umbrales: List[float], duraciones_dias: List[int], cantidad_repeticiones: int):
+    kpis_finales = []
 
-
-def simular(umbrales, cantidad_x_umbral, tiempo):
-
-    for umbral in umbrales:
-        print(f"Simulación umbral: {umbral}\n")
-        start = time.time()
-        Ftotales = list()
-        Fprogramadas = list()
-        Freactivas = list()
-        mtbf = list()
-        tiempo_op = list()
-        tiempo_rep = list()
-        tiempo_sin = list()
-        lista_n_simulaciones = list()
-        lista_umbrales = list()
-        lista_kms = list()
-        lista_tons = list()
-        factores_toneladas = list()
-        factores_kilometros = list()
-        for i in range (cantidad_x_umbral):
-            print(f"Simulación número {i}")
-            simulacion = Simulacion(tiempo, umbral)
-            simulacion.inicio_politica_umbral_Cox()
-            #simulacion.inicio_politica_reactiva()
-
-            fallas_totales = simulacion.camion.CFallas 
-            fallas_programadas = simulacion.camion.CFallaP
-            fallas_reactivas = fallas_totales - fallas_programadas
-            Ftotales.append(fallas_totales)
-            Fprogramadas.append(fallas_programadas)
-            Freactivas.append(fallas_reactivas)
-            if len(simulacion.tiempos_entre_falla) != 0:
-                mtbf.append(sum(simulacion.tiempos_entre_falla) / len(simulacion.tiempos_entre_falla))
-            tiempo_op.append(simulacion.camion.TOperacion)
-            tiempo_rep.append(simulacion.camion.TReparacion)
-            tiempo_sin.append(tiempo - simulacion.camion.TOperacion - simulacion.camion.TReparacion)
-            lista_n_simulaciones.append(i+1)
-            lista_umbrales.append(umbral)
-            lista_kms.append(simulacion.camion.CKT)
-            lista_tons.append(simulacion.camion.CTT)
-            factores_toneladas.append((simulacion.camion.CTT/simulacion.camion.TOperacion)/simulacion.camion.TReparacion)
-            factores_kilometros.append((simulacion.camion.CKT/simulacion.camion.TOperacion)/simulacion.camion.TReparacion)
+    for dias in duraciones_dias:
+        for umbral in umbrales:
+            print(f"Simulación umbral: {umbral} para {dias} días\n")
+            start = time.time()
             
-        print(f"Fallas totales promedio: {sum(Ftotales)/len(Ftotales)}")
-        print(f"Fallas programadas promedio: {sum(Fprogramadas)/len(Fprogramadas)}")
-        print(f"Fallas reactivas promedio: {sum(Freactivas)/len(Freactivas)}")
-        print(f"Tiempo promedio entre fallas: {sum(mtbf) / len(mtbf)}")
-        print(f"Tiempo de operacion promedio: {sum(tiempo_op) / len(tiempo_op)}")
-        print(f"Tiempo sin operar promedio: {sum(tiempo_sin) / len(tiempo_sin)}")
-        print(f"Tiempo de Operacion/Tiempo de Reparacion: {sum(tiempo_op)/sum(tiempo_rep)}")  
-        print(f"Factor Toneladas: {sum(factores_toneladas)/len(factores_toneladas)}")
-        print(f"Factor Kilometros: {sum(factores_kilometros)/len(factores_kilometros)}")
-        print(f"\n\nTiempo total de ejecución para {cantidad_x_umbral} repeticiones de {tiempo/8640} año/s es: {time.time() - start} segundos")
-        var0 = lista_n_simulaciones
-        var1 = (Ftotales)
-        var2 = (Fprogramadas)
-        var3 = (Freactivas)
-        var4 = (mtbf)
-        var5 = (tiempo_op)
-        var6 = (tiempo_sin)
-        var7 = [op / rep if rep != 0 else None for op, rep in zip(tiempo_op, tiempo_rep)]
-        var8 = tiempo_rep
-        var9 = lista_kms
-        var10 = lista_tons
-        var11 = factores_toneladas
-        var12 = factores_kilometros
+            # Inicializar listas para almacenar resultados de las simulaciones
+            Ftotales = list()
+            Fprogramadas = list()
+            Freactivas = list()
+            mtbf = list()
+            tiempo_op = list()
+            tiempo_rep = list()
+            tiempo_sin = list()
+            lista_n_simulaciones = list()
+            lista_umbrales = list()
+            lista_kms = list()
+            lista_tons = list()
+            factores_toneladas = list()
+            factores_kilometros = list()
+            
+            for i in range(cantidad_repeticiones):
+                print(f"Simulación número {i}")
+                simulacion = Simulacion(dias * 24, umbral)
+                simulacion.inicio_politica_umbral_Cox()
+                
+                # Agregar los resultados de la simulación a las listas correspondientes
+                try:
+                    fallas_totales = simulacion.camion.CFallas 
+                    fallas_programadas = simulacion.camion.CFallaP
+                    fallas_reactivas = fallas_totales - fallas_programadas
+                    Ftotales.append(fallas_totales)
+                    Fprogramadas.append(fallas_programadas)
+                    Freactivas.append(fallas_reactivas)
+                    if len(simulacion.tiempos_entre_falla) != 0:
+                        mtbf.append(sum(simulacion.tiempos_entre_falla) / len(simulacion.tiempos_entre_falla))
+                    else:
+                        mtbf.append(None)  # Agregar None si no hay tiempos entre fallas
+                    tiempo_op.append(simulacion.camion.TOperacion)
+                    tiempo_rep.append(simulacion.camion.TReparacion)
+                    tiempo_sin.append(dias * 24 - simulacion.camion.TOperacion - simulacion.camion.TReparacion)
+                    lista_n_simulaciones.append(i+1)
+                    lista_umbrales.append(umbral)
+                    lista_kms.append(simulacion.camion.CKT)
+                    lista_tons.append(simulacion.camion.CTT)
+                    factores_toneladas.append((simulacion.camion.CTT/simulacion.camion.TOperacion)/simulacion.camion.TReparacion)
+                    factores_kilometros.append((simulacion.camion.CKT/simulacion.camion.TOperacion)/simulacion.camion.TReparacion)
+                except Exception as e:
+                    print(f"Error en la simulación número {i}: {e}")
 
-        data = {
-            "Umbral": lista_umbrales,
-            "N_simulacion": var0,
-            "Fallas totales promedio": var1,
-            "Fallas programadas promedio": var2,
-            "Fallas reactivas promedio": var3,
-            "Tiempo promedio entre fallas": var4,
-            "Tiempo de operacion promedio": var5,
-            "Tiempo sin operar promedio": var6,
-            "Tiempo de Operacion/Tiempo de Reparacion": var7,
-            "Tiempo_Reparacion": var8,
-            "Kilometros totales": var9,
-            "Toneladas totales": var10,
-            "Factor Toneladas": var11,
-            "Factor Kilometros": var12
-        }
-                    
-        df_new = pd.DataFrame(data)
+            # Filtrar valores None de la lista mtbf antes de calcular el promedio
+            mtbf_filtrado = [x for x in mtbf if x is not None]
 
-        # Nombre del archivo CSV donde se guardarán los datos
-        csv_file = "registro_variables_new_2.csv"
+            print(f"Fallas totales promedio: {sum(Ftotales)/len(Ftotales)}")
+            print(f"Fallas programadas promedio: {sum(Fprogramadas)/len(Fprogramadas)}")
+            print(f"Fallas reactivas promedio: {sum(Freactivas)/len(Freactivas)}")
+            if mtbf_filtrado:
+                print(f"Tiempo promedio entre fallas: {sum(mtbf_filtrado) / len(mtbf_filtrado)}")
+            else:
+                print("Tiempo promedio entre fallas: None")
+            print(f"Tiempo de operacion promedio: {sum(tiempo_op) / len(tiempo_op)}")
+            print(f"Tiempo sin operar promedio: {sum(tiempo_sin) / len(tiempo_sin)}")
+            print(f"Tiempo de Operacion/Tiempo de Reparacion: {sum(tiempo_op)/sum(tiempo_rep)}")  
+            print(f"Factor Toneladas: {sum(factores_toneladas)/len(factores_toneladas)}")
+            print(f"Factor Kilometros: {sum(factores_kilometros)/len(factores_kilometros)}")
+            print(f"\n\nTiempo total de ejecución para {cantidad_repeticiones} repeticiones de {umbral} año/s es: {time.time() - start} segundos")
 
-        try:
-            # Intentar leer el archivo CSV existente
-            df_existing = pd.read_csv(csv_file)
+            var0 = lista_n_simulaciones
+            var1 = Ftotales
+            var2 = Fprogramadas
+            var3 = Freactivas
+            var4 = mtbf
+            var5 = tiempo_op
+            var6 = tiempo_sin
+            var7 = [op / rep if rep != 0 else None for op, rep in zip(tiempo_op, tiempo_rep)]
+            var8 = tiempo_rep
+            var9 = lista_kms
+            var10 = lista_tons
+            var11 = factores_toneladas
+            var12 = factores_kilometros
 
-            # Concatenar el nuevo DataFrame con el existente
-            df_final = pd.concat([df_existing, df_new], ignore_index=True)
+            data = {
+                "Umbral": lista_umbrales,
+                "N_simulacion": var0,
+                "Fallas totales promedio": var1,
+                "Fallas programadas promedio": var2,
+                "Fallas reactivas promedio": var3,
+                "Tiempo promedio entre fallas": var4,
+                "Tiempo de operacion promedio": var5,
+                "Tiempo sin operar promedio": var6,
+                "Tiempo de Operacion/Tiempo de Reparacion": var7,
+                "Tiempo_Reparacion": var8,
+                "Kilometros totales": var9,
+                "Toneladas totales": var10,
+                "Factor Toneladas": var11,
+                "Factor Kilometros": var12
+            }
+                        
+            df_new = pd.DataFrame(data)
 
-        except FileNotFoundError:
-            # Si el archivo no existe, usar solo el nuevo DataFrame
-            df_final = df_new
+            # Nombre del archivo CSV donde se guardarán los datos
+            csv_file = f"Resultado_simulacion_base_{dias}_dias.csv"
 
-        # Guardar el DataFrame en el archivo CSV
-        df_final.to_csv(csv_file, index=False, encoding="utf-8")
+            try:
+                # Intentar leer el archivo CSV existente
+                df_existing = pd.read_csv(csv_file)
 
-        print("Valores guardados en 'registro_variables_new_2.csv'.")
+                # Concatenar el nuevo DataFrame con el existente
+                df_final = pd.concat([df_existing, df_new], ignore_index=True)
 
-valores_simulados = [
-    0.358
-]
+            except FileNotFoundError:
+                # Si el archivo no existe, usar solo el nuevo DataFrame
+                df_final = df_new
 
-#SI QUEREMOS POLÍTICA REACTIVA, QUE ES UN CASO BASE, PONER UMBRAL 0
+            # Guardar el DataFrame en el archivo CSV
+            df_final.to_csv(csv_file, index=False, encoding="utf-8")
 
-simular(valores_simulados, 5, 8760)
+            print(f"Valores guardados en '{csv_file}'.")
+
+            end = time.time()
+            print(f"Tiempo total de ejecución para {cantidad_repeticiones} repeticiones de {umbral} año/s es: {end - start} segundos")
+
+            # Guardar los KPIs finales para cada día
+            kpis_finales.append({
+                "Dias": dias,
+                "Factor Toneladas": sum(factores_toneladas)/len(factores_toneladas),
+                "Factor Kilometros": sum(factores_kilometros)/len(factores_kilometros)
+            })
+
+    # Imprimir los KPIs finales
+    for kpi in kpis_finales:
+        print(f"Días: {kpi['Dias']}, Factor Toneladas: {kpi['Factor Toneladas']}, Factor Kilometros: {kpi['Factor Kilometros']}")
+
+    # Guardar los KPIs finales en un archivo CSV
+    df_kpis_finales = pd.DataFrame(kpis_finales)
+    df_kpis_finales.to_csv("KPIs_finales_cbase.csv", index=False, encoding="utf-8")
+    print("KPIs finales guardados en 'KPIs_finales_cbase.csv'.")
+
+# Especificar los umbrales y las duraciones en días fuera de la función
+umbrales = [0]
+duraciones_dias = [90, 150, 180, 240, 365]
+
+# Ejecutar la simulación para cada combinación de umbrales y duraciones
+simular(umbrales, duraciones_dias, 200)
