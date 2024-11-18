@@ -35,7 +35,7 @@ def simular(umbrales: List[float], duraciones_dias: List[int], cantidad_repetici
             for i in range(cantidad_repeticiones):
                 print(f"Simulación número {i}")
                 simulacion = Simulacion(dias * 24, umbral)
-                simulacion.inicio_politica_umbral_Cox()
+                simulacion.inicio_CASO_BASE_2()
                 
                 # Agregar los resultados de la simulación a las listas correspondientes
                 try:
@@ -112,7 +112,7 @@ def simular(umbrales: List[float], duraciones_dias: List[int], cantidad_repetici
             df_new = pd.DataFrame(data)
 
             # Nombre del archivo CSV donde se guardarán los datos
-            csv_file = f"Resultado_simulacion_base_{dias}_dias.csv"
+            csv_file = f"Resultado_simulacion_{dias}_dias.csv"
 
             try:
                 # Intentar leer el archivo CSV existente
