@@ -35,7 +35,7 @@ def simular(umbrales: List[float], duraciones_dias: List[int], cantidad_repetici
             for i in range(cantidad_repeticiones):
                 print(f"Simulación número {i}")
                 simulacion = Simulacion(dias * 24, umbral)
-                simulacion.inicio_CASO_BASE_2()
+                simulacion.inicio_politica_umbral_Cox()
                 
                 # Agregar los resultados de la simulación a las listas correspondientes
                 try:

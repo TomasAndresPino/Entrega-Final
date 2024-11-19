@@ -69,70 +69,6 @@ class Camion:
         o = Ocio()
         return o
 
-class CamionSensible:
-    def __init__(self, tipo, id, porcentaje):
-        self.tipo = tipo
-        self.id = id
-        self.porcentaje = porcentaje
-        self.TOcio = 0 # Tiempo de ocio
-
-        self.CTT = 0 # carga total transportada
-        self.carga = 0 # carga de la operación actual
-        self.CKT = 0 # cantidad de kilometros totales
-        self.kilometros = 0 #kilometros de la operación actual
-        self.CFallas = 0 # cantidad de fallas
-        self.CFallaP = 0
-        self.CFallaF = 0
-        self.TOperacion = 0 # tiempo en operacion
-        self.TReparacion = 0 # tiempo en reparacion
-
-        "Variables que hay que ir reiniciando para calcular cox"
-        self.kms_acumulados = 0
-        self.ton_acumuladas = 0
-        self.fallas_acumuladas = 0
-        self.tiempo_en_funcionamiento = 0
-        self.tiempo_desde_la_última_falla = {"1:": 0, "2": 0, "3": 0, "4": 0, "5": 0}
-
-        "Próximos eventos del camión"
-        self.TPE = 0
-
-        "Vectores por sistema"
-        self.ton_per_time = [0, 0, 0, 0, 0] # lista que cuenta toneladas/t para la operación, sirve para cox
-        self.kms_per_time = [0, 0, 0, 0, 0] # lista que cuenta kilómetros/t para la operación, sirve para cox
-        self.ton_per_time_virtual = 0 # lista que cuenta toneladas/t para la operación, sirve para cox
-        self.kms_per_time_virtual = 0 # lista que cuenta kilómetros/t para la operación, sirve para cox
-
-    def cargar(self):
-        """
-        Ocupar función generadora de cargas
-        """
-        c = (Carga())*(1 + self.porcentaje/100)
-        self.CTT += c
-        self.carga = c
-
-    def opera(self):
-        """
-        Ocupar función generadora de tiempo de operación y generadora de tiempo de ocio, es el evento TPE
-        """
-        self.TOcio = Ocio()
-        self.TPE = Operacion() + self.TOcio
-        k = (Kilometros())*(1 + self.porcentaje/100)
-        self.CKT += k
-        self.kilometros = k
-    
-    def carga_teorico(self):
-        c = Carga()*(1 + self.porcentaje/100)
-        return c
-
-    def opera_teorico(self):
-        k = (Kilometros())*(1 + self.porcentaje/100)
-        topera = Operacion()
-        return k, topera
-    
-    def t_ocio_teorico(self):
-        o = Ocio()
-        return o
-
 class Simulacion:
     def __init__(self, tfin, umbral):
         self.camion = Camion("Model_A", "AWOU5IMX")
@@ -142,6 +78,8 @@ class Simulacion:
         self.Tdia5 = 0
         self.TLast = [0, 0, 0, 0, 0] 
         self.TFin = tfin # inicialmente con 30 días y 1 camión
+        self.dias_fallas_r = []
+        self.dias_fallas_p = []
 
         "Parámetros necesarios para CB2"
         self.contador_dias = 0 
@@ -388,6 +326,7 @@ class Simulacion:
                 elif nivel == 5:
                     "Falla tipo 5"
                     tfalla = TFalla5()
+                self.dias_fallas_r.append(self.T)
                 self.tiempos_entre_falla.append(self.TLast[nivel-1])
                 self.T += tfalla
                 self.tiempos_fallas.append(tfalla)
@@ -433,6 +372,7 @@ class Simulacion:
                     start = time.time()
 
                     #print(f"El equipo falla proactivamente en el tiempo {self.T}")
+                    self.dias_fallas_p.append(self.T)
                     "Se mantendrá quien haya bajado del umbral cox y lleve menos tiempo sin mantener"
                     # tlast_filtrado = []
                     # for indice in bajo_umbral:
@@ -639,8 +579,6 @@ class Simulacion:
                             self.camion.CFallas += 1
                             mantencion_programada = False
                     self.Tdia = 0
-
-
 
 
     def KPIs(self):
