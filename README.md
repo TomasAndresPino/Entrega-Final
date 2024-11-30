@@ -24,10 +24,10 @@ OJO: si se ponen ceros o si se ponen números muy grandes el programa se cae. No
 4. TLast: Última reparación de Sistema (Vector)
 5. TON_PER_TIME & KMS_PER_TIME (Vectores)
 
-###### KPIs primarios
+##### KPIs primarios
 1. FACTOR KMS
 2. FACTOR TON
 
-###### KPIs secundarios
+##### KPIs secundarios
 1. MTBM
 2. DOWNTIME
