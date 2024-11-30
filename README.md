@@ -28,6 +28,6 @@ OJO: si se ponen ceros o si se ponen números muy grandes el programa se cae. No
 1. FACTOR KMS
 2. FACTOR TON
 
-####### KPIs secundarios
+###### KPIs secundarios
 1. MTBM
 2. DOWNTIME
