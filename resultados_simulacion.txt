@@ -1,0 +1,89 @@
+
+        === Ejecución: 2024-11-15 09:09:16 umbral 0.3 ===
+        Fallas totales promedio: 19.3
+        Fallas programadas promedio: 11.62
+        Fallas reactivas promedio: 7.68
+        Tiempo promedio entre fallas: 404.411519206634
+        Tiempo de operacion promedio: 3972.156559205676
+        Tiempo sin operar promedio: 4600.221501110937
+        Tiempo de Operacion/Tiempo de Reparacion: 58.74064804712258
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 283.45045614242554 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 09:13:16 umbral 0.4 ===
+        Fallas totales promedio: 20.94
+        Fallas programadas promedio: 14.42
+        Fallas reactivas promedio: 6.52
+        Tiempo promedio entre fallas: 327.0206260896968
+        Tiempo de operacion promedio: 3962.14749212461
+        Tiempo sin operar promedio: 4597.284641355409
+        Tiempo de Operacion/Tiempo de Reparacion: 49.17776358322535
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 237.3945655822754 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 09:16:42 umbral 0.5 ===
+        Fallas totales promedio: 24.22
+        Fallas programadas promedio: 18.9
+        Fallas reactivas promedio: 5.32
+        Tiempo promedio entre fallas: 258.9853389489261
+        Tiempo de operacion promedio: 3969.2282179464864
+        Tiempo sin operar promedio: 4589.719986246201
+        Tiempo de Operacion/Tiempo de Reparacion: 48.971502462236494
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 206.14077734947205 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 09:19:47 umbral 0.6 ===
+        Fallas totales promedio: 29.98
+        Fallas programadas promedio: 24.18
+        Fallas reactivas promedio: 5.8
+        Tiempo promedio entre fallas: 210.61368916042906
+        Tiempo de operacion promedio: 3956.050640068687
+        Tiempo sin operar promedio: 4581.334955836526
+        Tiempo de Operacion/Tiempo de Reparacion: 38.55258601330845
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 184.12345790863037 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 09:54:47 umbral 0.1 ===
+        Fallas totales promedio: 18.94
+        Fallas programadas promedio: 6.18
+        Fallas reactivas promedio: 12.76
+        Tiempo promedio entre fallas: 693.7919739609175
+        Tiempo de operacion promedio: 3966.178850635991
+        Tiempo sin operar promedio: 4582.558672612896
+        Tiempo de Operacion/Tiempo de Reparacion: 43.45903148620888
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 306.8554491996765 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 09:59:23 umbral 0.2 ===
+        Fallas totales promedio: 18.12
+        Fallas programadas promedio: 8.92
+        Fallas reactivas promedio: 9.2
+        Tiempo promedio entre fallas: 500.01765149717505
+        Tiempo de operacion promedio: 3967.003046864353
+        Tiempo sin operar promedio: 4595.375559912895
+        Tiempo de Operacion/Tiempo de Reparacion: 51.107083783978275
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 276.7858555316925 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 10:30:28 umbral 0.28 ===
+        Fallas totales promedio: 19.1
+        Fallas programadas promedio: 10.96
+        Fallas reactivas promedio: 8.14
+        Tiempo promedio entre fallas: 470.4044038949844
+        Tiempo de operacion promedio: 3969.608466620259
+        Tiempo sin operar promedio: 4600.30195122992
+        Tiempo de Operacion/Tiempo de Reparacion: 56.63621247070688
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 308.2393717765808 segundos
+        =============================
+        
+        === Ejecución: 2024-11-15 10:35:02 umbral 0.32 ===
+        Fallas totales promedio: 19.6
+        Fallas programadas promedio: 12.18
+        Fallas reactivas promedio: 7.42
+        Tiempo promedio entre fallas: 371.2793032925229
+        Tiempo de operacion promedio: 3970.079031961317
+        Tiempo sin operar promedio: 4597.099032246091
+        Tiempo de Operacion/Tiempo de Reparacion: 54.517625613094275
+        Tiempo total de ejecución para 50 repeticiones de 1.0 año/s es: 273.3061604499817 segundos
+        =============================
+        

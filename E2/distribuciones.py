@@ -3,6 +3,10 @@ import math
 from scipy.stats import gamma
 import numpy as np
 
+"""
+Archivo que cuenta con diferentes funciones y distribuciones necesarias para la simulación.
+"""
+
 np.random.seed(42)
 
 def Ocio():

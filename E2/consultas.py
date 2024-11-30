@@ -4,6 +4,12 @@ from typing import Generator
 import random
 import numpy as np
 
+"""
+Archivo que utiliza Programación Funcional.
+
+Se dejaron abiertas las funciones importantes, las que están cerradas eran 
+para hacerle "consultas" a los datos (extraer información de estos).
+"""
 np.random.seed(42)
 
 def rangos_1(g_operaciones: Generator):

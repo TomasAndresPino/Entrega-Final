@@ -3,6 +3,10 @@ from datetime import datetime
 from NamedTuples import Operacion_Toneladas, Operacion_Tiempo, Operacion_Kms, Falla, Hazzard, Mantencion, Probabilidad, Mantencion_2
 import pandas as pd
 
+"""
+Archivo con funciones generadoras necesarias para el paradigma de Programación Funcional utilizado.
+"""
+
 def generador_operaciones(archivo, modelo) -> Generator:
     next(archivo)
     for linea in archivo:

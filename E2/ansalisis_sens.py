@@ -3,6 +3,8 @@ import time
 import datetime
 import pandas as pd
 
+"Archivo creado para simular más de 1 vez, almacenar los resultados e identificar que "
+
 # Definir la función frange
 def frange(start, stop, step):
     while start <= stop:
@@ -34,7 +36,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
             print(f"Simulación número {i}")
             simulacion = Simulacion(tiempo, umbral)
             simulacion.inicio_politica_umbral_Cox()
-            #simulacion.inicio_politica_reactiva()
+            # simulacion.inicio_CASO_BASE_2()
 
             fallas_totales = simulacion.camion.CFallas 
             fallas_programadas = simulacion.camion.CFallaP
@@ -98,7 +100,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         df_new = pd.DataFrame(data)
 
         # Nombre del archivo CSV donde se guardarán los datos
-        csv_file = "registro_variables_new_2.csv"
+        csv_file = "cuanto_te_demoras.csv"
 
         try:
             # Intentar leer el archivo CSV existente
@@ -114,7 +116,7 @@ def simular(umbrales, cantidad_x_umbral, tiempo):
         # Guardar el DataFrame en el archivo CSV
         df_final.to_csv(csv_file, index=False, encoding="utf-8")
 
-        print("Valores guardados en 'registro_variables_new_2.csv'.")
+        print("Valores guardados en 'cuanto_te_demoras.csv'.")
 
 valores_simulados = [
     0.358
@@ -122,4 +124,4 @@ valores_simulados = [
 
 #SI QUEREMOS POLÍTICA REACTIVA, QUE ES UN CASO BASE, PONER UMBRAL 0
 
-simular(valores_simulados, 5, 8760)
+simular(valores_simulados, 200, 8640)

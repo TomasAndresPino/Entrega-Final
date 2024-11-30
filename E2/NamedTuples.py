@@ -1,5 +1,10 @@
 from collections import namedtuple
 
+"""
+Archivo que contiene clases (como named tuples) necesarias para el 
+paradigma de Programación Funcional utilizado.
+"""
+
 Operacion_Toneladas = namedtuple('Operacion_Toneladas', ['Toneladas'])
 Operacion_Tiempo = namedtuple('Operacion_Tiempo', ['TInicio', 'TFin'])
 Operacion_Kms = namedtuple('Operacion_Kms', ['Kms'])

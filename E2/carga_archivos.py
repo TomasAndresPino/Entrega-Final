@@ -2,6 +2,15 @@ from typing import Generator
 from funciones_generadoras import generador_operaciones, generador_operaciones_tiempo, generador_ocios, generador_kilometros, generador_fallas, generador_hazard, generador_mantenciones, generador_probabilidad, generador_mantenciones_año
 import os
 
+"""
+Archivo creado para cargar los distintos tipos de archivos que se fuero necesitando.
+
+Utiliza el paradigma de Programación Funcional.
+
+Este archivo está hardcodeado, ya que en cargar_hazzard y cargar_probabilidades
+es necesario copiar la ruta de la carpeta BasesCox y KMs.
+"""
+
 def cargar_operaciones(nombre_archivo: str, modelo: str) -> Generator:
     # Carga los datos de operacion
     nombre = nombre_archivo + ".csv"
@@ -60,7 +69,7 @@ def cargar_mantenciones_2(nombre_archivo: str) -> Generator:
 
 def cargar_probabilidades(nombre_archivo: str) -> Generator:
     nombre = nombre_archivo + ".csv"
-   
+    
     with open(f"C:/Users/tpin0/Desktop/Entrega-Final/E2/KMs/{nombre}", "r", encoding= "latin-1") as archivo:
         yield from generador_probabilidad(archivo)
 

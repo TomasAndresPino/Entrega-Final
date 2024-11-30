@@ -1,6 +1,11 @@
 import random
 import numpy as np
 
+"""
+Los dados cargados son necesarios ya que puede ocurrir que ocurra más de una falla en cierto tiempo
+y hay que determinar cual falla ocurre. Eso es lo que hacen estos dados cargados.
+"""
+
 np.random.seed(42)
 
 def dado_cargado_5():
